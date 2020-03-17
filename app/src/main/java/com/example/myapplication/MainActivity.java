@@ -22,11 +22,13 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
     final int PICK_IMAGE = 123;
+    final int REQUEST_IMAGE_CAPTURE = 146;
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE){
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
 
             Uri uri = data.getData();
 
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
             // объект с растром
             // источник кода https://developer.android.com/guide/topics/providers/document-provider?hl=ru
             Bitmap image = null;
+            /*
             try {
                 // загрузка данных по Uri
                 ParcelFileDescriptor parcelFileDescriptor =
@@ -43,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
                 image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
                 parcelFileDescriptor.close();
             } catch (IOException e) { Log.d("mytag", e.getLocalizedMessage());  }
-
+*/
+            image = data.getParcelableExtra("data");
             ImageView iv = findViewById(R.id.image);
             // 1) проверить, что изображение выбрано (не null)
             // в противном случае вывести toast с сообщением, что картинка не выбрана
@@ -75,15 +79,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
+    public void capturePhoto(String targetFilename) {
+        File file = getFilesDir();
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT,
+                Uri.withAppendedPath(Uri.fromFile(file), targetFilename));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
     public void onClick(View v){
         Log.d("mytag", "TAG:"+v.getId());
+        capturePhoto("123.jpg");
+        /*
         Intent i = new Intent(Intent.ACTION_PICK);
 
 
         i.setType("image/*");
 
         startActivityForResult(i, PICK_IMAGE);
-
+*/
 
     }
 }
